@@ -141,6 +141,8 @@ fn adjust_balance_sell(balances: &mut HashMap<String, Vec<BalanceEntry>>, transa
     balances.get_mut(&new_balance.currency).unwrap().push(new_balance);
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct RealizedProfit {
     pub date: DateTime<Utc>,
     pub currency: String,
@@ -190,6 +192,15 @@ pub fn calculate_profits_balances(file_path: String) -> (Vec<RealizedProfit>, Ha
     let mut transactions = read_transactions(file_path).expect("Can't read transactions");
     transactions.sort_by(|t1, t2| t1.timestamp.cmp(&t2.timestamp) );
     profits_balances(&transactions)
+}
+
+pub fn write_profits_to_file(profits: &Vec<RealizedProfit>, out_file: &String) -> Result<(), Box<Error>> {
+    let file = File::create(out_file)?;
+    let mut writer = csv::Writer::from_writer(file);
+    for profit in profits.iter() {
+        writer.serialize(profit)?
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -264,6 +275,24 @@ mod tests {
         assert_eq!(profit.cost, 500_f64 + 200_f64);
         println!("profit: {}", profit.profit());
         assert_eq!(profit.profit(), 1100_f64);
+    }
+
+    #[test]
+    fn test_deduct_balance() {
+        let btc = String::from("BTC");
+        let btc_balances = vec![BalanceEntry {
+                currency: btc.clone(),
+                amount: 1000_f64,
+                cost: 300_f64
+            }, BalanceEntry {
+                currency: btc.clone(),
+                amount: 200_f64,
+                cost: 300_f64
+            }];
+        let mut balances = HashMap::new();
+        balances.insert(btc.clone(), btc_balances);
+        let cost = deduct_balance(&mut balances, &btc, 1100_f64);
+        assert_eq!(cost, 450_f64);
     }
 
 }

@@ -9,24 +9,28 @@ mod tax;
 
 use tax::*;
 
-fn read_arguments() -> Result<String, Box<Error>> {
-    match env::args().nth(1) {
-        None => Err(From::from("expected a file name as argument")),
-        Some(file_path) => Ok(file_path)
-    }
+struct CLIArguments {
+    in_file: String,
+    out_file: String
+}
+
+fn read_arguments() -> Result<CLIArguments, Box<Error>> {
+    let mut args = env::args();
+    let in_file = args.nth(1).expect("Expected an input file name");
+    let out_file = args.next().unwrap_or(String::from("./out.csv"));
+
+    Ok(CLIArguments { in_file: in_file, out_file: out_file })
 }
 
 fn main() {
-    let file_path = read_arguments().expect("No input filename given");
-    let (profits, balances) = calculate_profits_balances(file_path);
+    let cli_args = read_arguments().expect("No input filename given");
+    let (profits, balances) = calculate_profits_balances(cli_args.in_file);
 
     for (currency, entries) in balances.iter() {
         let total_in_currency: f64 = entries.into_iter().map(|e| e.amount).sum();
         println!("{}: {}", currency, total_in_currency);
     }
 
-    println!("Profits:");
-    for profit in profits.into_iter() {
-        println!("sold currency: {}, amount: {}, sell price: {}, cost: {}", profit.currency, profit.amount_sold, profit.eur_total, profit.cost);
-    }
+    println!("out file: {}", cli_args.out_file);
+    write_profits_to_file(&profits, &cli_args.out_file).expect("Can't write to file.");
 }
