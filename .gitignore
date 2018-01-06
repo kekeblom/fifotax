@@ -3,4 +3,5 @@
 **/*.rs.bk
 Cargo.lock
 transactions.csv
+out.csv
 
