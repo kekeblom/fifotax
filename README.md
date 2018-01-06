@@ -5,6 +5,7 @@ The project is written in the Rust programming language. You'll need to have rus
 The input to the program is a csv file of your full transaction history. The format of the file is described below. Column names are case sensitive.
 
 | Column  | Description |
+| ------- | ----------- |
 | Timestamp | The time at which the transaction was made. The format is ISO 8601 with a Z appended to the end. Example: "2014-02-21T15:43:30Z" |
 | Ticker | The symbol of the currency that was bought or sold. E.g. "BTC" |
 | TransactionType | "Buy" or "Sell" |
@@ -23,6 +24,7 @@ Profits are calculated such that only when liquidating an asset to EUR will it b
 You can run the program with the command `cargo run --release transactions.csv`. It will output a file `out.csv` which will contain the realized profits. The output collumns are:
 
 | Column | Description |
+| ------ | ----------- |
 | Date | When the sale happened. |
 | Currency | which currency was sold. |
 | AmountSold | How much currency was sold. |
