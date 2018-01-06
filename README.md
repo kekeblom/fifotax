@@ -31,3 +31,5 @@ You can run the program with the command `cargo run --release transactions.csv`.
 | EurTotal | How much was received as part of the sale. |
 | Cost | Calculated acquisition cost of all the currency sold. |
 
+You can use the `-b` option to have the program write a file `balances.csv`. This file will contain your unused balances along with the acquisition cost for each asset you own.
+
